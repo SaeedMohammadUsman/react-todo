@@ -14,7 +14,7 @@ const todoList = [
   },
 ];
 
-function TodoList() {
+function TodoList({todoList}) {
   return (
     
      <ul>
