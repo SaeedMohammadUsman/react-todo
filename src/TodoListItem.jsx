@@ -3,7 +3,7 @@ function TodoListItem({todo}) {
         return (
         <div>
         
-        <li>{todo.id}</li>
+        {/* <li>{todo.id}</li> */}
         <li>{todo.title}</li>
        
         </div>);
