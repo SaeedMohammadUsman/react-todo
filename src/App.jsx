@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import TodoList from "./TodoList";
 import AddTodoForm from "./AddTodoForm";
@@ -25,13 +23,20 @@ function App() {
   function addTodo(newTodo) {
     setTodoList((prevTodoList) => [...prevTodoList, newTodo]);
   }
+  function removeTodo(id) {
+    setTodoList((prevTodoList) => prevTodoList.filter(todo => todo.id !== id));
+  }
+
+  
   return (
     <React.Fragment>
       <h1>Todo List</h1>
-      <AddTodoForm onAddTodo={addTodo} />
+      <AddTodoForm onAddTodo={addTodo}
+      />
       {/* <p>{newTodo}</p> */}
 
-      <TodoList todoList={todoList} />
+      <TodoList todoList={todoList} onRemoveTodo={removeTodo}/>
+      
       </React.Fragment>
   );
 }
