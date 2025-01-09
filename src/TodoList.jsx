@@ -14,7 +14,7 @@ const todoList = [
   },
 ];
 
-function TodoList({todoList}) {
+function TodoList({todoList, onRemoveTodo}) {
   return (
     
      <ul>
@@ -22,7 +22,9 @@ function TodoList({todoList}) {
     
           <TodoListItem
             key={item.id}
-            todo={item}/>
+            todo={item}
+            onRemoveTodo={onRemoveTodo} 
+            />
           ))}
       </ul> 
   )
