@@ -13,44 +13,37 @@ function App() {
       // If there is saved data, load it
       setTodoList(JSON.parse(savedTodoList));
       setIsLoading(false);
-    } 
-    else {
-    const myPromise = new Promise((resolve, reject) => {
-      console.log("Promise initialized");
-      setTimeout(() => {
-        resolve({
-          data: {
-            todoList: [],
-          },
-        });
-      }, 2000);
-   
-    });
-
-    myPromise.then((result) => {
-      setTodoList(result.data.todoList);
-      setIsLoading(false);
-    });
-  }
-  }, []);
-
-
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem("savedTodoList", JSON.stringify(todoList));
+    } else {
+      const myPromise = new Promise((resolve, reject) => {
+        console.log("Promise initialized");
+        setTimeout(() => {
+          resolve({
+            data: {
+              todoList: [],
+            },
+          });
+        }, 2000);
+      });
+  
+      myPromise.then((result) => {
+        const newTodoList = [...result.data.todoList]; 
+        setTodoList(newTodoList);
+        localStorage.setItem("savedTodoList", JSON.stringify(newTodoList)); 
+        setIsLoading(false);
+      });
     }
-  }, [todoList, isLoading]);
-
+  }, []);
+  
   function addTodo(newTodo) {
     setIsLoading(true);
     
-    // setTodoList((prevTodoList) => [...prevTodoList, newTodo]);
+   
     
     setTodoList((prevTodoList) => {
       const updatedList = [...prevTodoList, newTodo];
       setTimeout(() => {
-        setIsLoading(false); // Stop loading after the change
-      }, 500);  // Simulate delay
+        setIsLoading(false); 
+      }, 500); 
       return updatedList;
     });
   
@@ -58,16 +51,15 @@ function App() {
   
   }
   function removeTodo(id) {
-    setIsLoading(true);  // Start loading when removing a todo
+    setIsLoading(true); 
     setTodoList((prevTodoList) => {
       const updatedList = prevTodoList.filter(todo => todo.id !== id);
       setTimeout(() => {
-        setIsLoading(false); // Stop loading after the change
-      }, 500);  // Simulate delay
+        setIsLoading(false); 
+      }, 500);  
       return updatedList;
     });
    
-    // setTodoList((prevTodoList) => prevTodoList.filter(todo => todo.id !== id));
     
     
   }
