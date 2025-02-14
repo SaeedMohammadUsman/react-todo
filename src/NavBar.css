@@ -1,0 +1,21 @@
+
+.navbar {
+  background-color: var(--primary-color);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--border-radius);
+}
+
+.navbar a {
+  color: white;
+  font-weight: bold;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.navbar a:hover {
+  color: var(--button-hover);
+  text-decoration: underline;
+}

@@ -1,90 +1,58 @@
+
+
 import React, { useState, useEffect } from "react";
+import NavBar from "./NavBar";
 import "./App.css";
 import TodoList from "./TodoList";
 import AddTodoForm from "./AddTodoForm";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
+const AIRTABLE_TABLE_NAME = import.meta.env.VITE_TABLE_NAME;
+const AIRTABLE_API_TOKEN = import.meta.env.VITE_AIRTABLE_API_TOKEN;
+const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
 
 function App() {
   const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   async function fetchData() {
-    const options = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
-      },
-    };
-
-    const url = `https://api.airtable.com/v0/${
-      import.meta.env.VITE_AIRTABLE_BASE_ID
-    }/${import.meta.env.VITE_TABLE_NAME}`;
-
+    setIsLoading(true);
     try {
-      const response = await fetch(url, options);
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
+      const response = await fetch(API_URL, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_API_TOKEN}`,
+        },
+      });
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
       const data = await response.json();
-
-      const todos = data.records.map((record) => ({
-        id: record.id,
-        title: record.fields.title,
-      }));
-
-      setTodoList(todos);
-      setIsLoading(false);
+      setTodoList(data.records.map((record) => ({ id: record.id, title: record.fields.title })));
     } catch (error) {
       console.error("Fetch error:", error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   async function addTodo(newTodoTitle) {
     setIsLoading(true);
-
-    const url = `https://api.airtable.com/v0/${
-      import.meta.env.VITE_AIRTABLE_BASE_ID
-    }/${import.meta.env.VITE_TABLE_NAME}`;
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
-      },
-      body: JSON.stringify({
-        fields: {
-          title: newTodoTitle,
-          completedAt: new Date().toISOString(), // You can replace this with `null` if not completed yet
-        },
-      }),
-    };
-    console.log("Sending data:", {
-      fields: {
-        title: newTodoTitle,
-        completedAt: new Date().toISOString(), // This sends the current date as an ISO string
-      },
-    });
-
     try {
-      const response = await fetch(url, options);
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AIRTABLE_API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          fields: {
+            title: newTodoTitle,
+          },
+        }),
+      });
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
       const data = await response.json();
-      const newTodo = {
-        id: data.id, // Use Airtable's unique ID
-        title: data.fields.title,
-      };
-
-      setTodoList((prevTodoList) => [...prevTodoList, newTodo]); // Update state only after success
+      setTodoList((prev) => [...prev, { id: data.id, title: data.fields.title }]);
     } catch (error) {
       console.error("POST error:", error.message);
     } finally {
@@ -92,46 +60,45 @@ function App() {
     }
   }
 
-  function removeTodo(id) {
+  async function removeTodo(id) {
     setIsLoading(true);
-    setTodoList((prevTodoList) => {
-      const updatedList = prevTodoList.filter((todo) => todo.id !== id);
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-      return updatedList;
-    });
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_API_TOKEN}`,
+        },
+      });
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      setTodoList((prev) => prev.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error("DELETE error:", error.message);
+    } finally {
+      setIsLoading(false);
+    }
   }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <BrowserRouter>
-      {/* <React.Fragment> */}
+      <NavBar />
       <Routes>
         <Route
-        path="/"
-        element={
-          <>
-            <h1>Todo List</h1>
-            <AddTodoForm onAddTodo={addTodo} />
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : (
-              <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
-            )}
-          </>
-        }
-      />
-      
-      
-      {/* new route */}
-      <Route 
-    path="/new" 
-    element={<h1>New Todo List</h1>} 
-  />
+          path="/"
+          element={
+            <>
+              <h1>Todo List</h1>
+              <AddTodoForm onAddTodo={addTodo} />
+              {isLoading ? <p>Loading...</p> : <TodoList todoList={todoList} onRemoveTodo={removeTodo} />}
+            </>
+          }
+        />
+        <Route path="/new" element={<h1>New Todo List</h1>} />
       </Routes>
-      {/* </React.Fragment> */}
     </BrowserRouter>
-    //
   );
 }
 

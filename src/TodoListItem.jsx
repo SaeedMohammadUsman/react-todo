@@ -1,10 +1,14 @@
+import style from "./TodoListItem.module.css";
+
+
+
 function TodoListItem({todo, onRemoveTodo}) {
 //        const{todo}= props;
         return (
         <div>
         
         {/* <li>{todo.id}</li> */}
-        <li>{todo.title}<button type="button" onClick={() => onRemoveTodo(todo.id)} >Remove</button></li>
+        <li className={style.ListItem}>{todo.title}<button type="button" onClick={() => onRemoveTodo(todo.id)} >Remove</button></li>
        
         </div>);
     

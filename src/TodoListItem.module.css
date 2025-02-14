@@ -1,0 +1,22 @@
+.ListItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    font-size: 1rem;
+  }
+  
+  .ListItem button {
+    background: red;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+  }
+  
+  .ListItem button:hover {
+    background: darkred;
+  }
