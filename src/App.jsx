@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar";
 import "./App.css";
-import TodoList from "./TodoList";
-import AddTodoForm from "./AddTodoForm";
+import TodoList from "./components/TodoList";
+import AddTodoForm from "./components/AddTodoForm";
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
