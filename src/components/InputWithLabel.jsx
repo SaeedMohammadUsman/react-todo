@@ -1,4 +1,5 @@
 // import React from 'react';
+import PropTypes from "prop-types";
 import React, { useRef, useEffect } from 'react';
 
 export const InputWithLabel = ({ children, todoTitle, handleTitleChange }) => {
@@ -18,4 +19,10 @@ useEffect(()=>{
      />
     </>
   );
+};
+
+InputWithLabel.propTypes = {
+  children: PropTypes.node.isRequired,
+  todoTitle: PropTypes.string.isRequired,
+  handleTitleChange: PropTypes.func.isRequired,
 };

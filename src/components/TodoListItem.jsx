@@ -1,5 +1,5 @@
 import style from "./TodoListItem.module.css";
-
+import PropTypes from "prop-types";
 
 
 function TodoListItem({todo, onRemoveTodo}) {
@@ -13,5 +13,11 @@ function TodoListItem({todo, onRemoveTodo}) {
         </div>);
     
 }; 
-
+TodoListItem.propTypes = {
+        todo: PropTypes.shape({
+          id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+          title: PropTypes.string.isRequired,
+        }).isRequired,
+        onRemoveTodo: PropTypes.func.isRequired,
+      };
 export default TodoListItem ;
