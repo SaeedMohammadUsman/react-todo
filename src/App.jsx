@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar";
 import "./App.css";
@@ -7,11 +9,16 @@ import AddTodoForm from "./components/AddTodoForm";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
-const AIRTABLE_TABLE_NAME = import.meta.env.VITE_TABLE_NAME;
+// const AIRTABLE_TABLE_NAME = import.meta.env.VITE_TABLE_NAME;
 const AIRTABLE_API_TOKEN = import.meta.env.VITE_AIRTABLE_API_TOKEN;
-const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
+// const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
+
+
 
 function App() {
+  const [tableName, setTableName] = useState(import.meta.env.VITE_TABLE_NAME);
+const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
+
   const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAscending, setIsAscending] = useState(true);
@@ -76,7 +83,7 @@ function App() {
   
     setIsLoading(true);
     try {
-      const response = await fetch(API_URL, {
+    const response=  await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,6 +97,7 @@ function App() {
       if (!response.ok) throw new Error(`Error: ${response.status}`);
       
       const data = await response.json();
+      // await fetchData();
       if (!data.fields || !data.fields.title) {
         throw new Error("API response missing title field");
       }
@@ -118,7 +126,8 @@ function App() {
         },
       });
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      setTodoList((prev) => prev.filter((todo) => todo.id !== id));
+      // setTodoList((prev) => prev.filter((todo) => todo.id !== id));
+      await fetchData();
     } catch (error) {
       console.error("DELETE error:", error.message);
     } finally {
@@ -128,7 +137,7 @@ function App() {
 
   useEffect(() => {
     fetchData();
-  }, [isAscending, sortBy]);
+  }, [isAscending, sortBy,tableName]);
 
   return (
     <BrowserRouter>
@@ -138,8 +147,12 @@ function App() {
           path="/"
           element={
             <>
-              <h1>Todo List</h1>
+              <h1>Todo List {tableName}</h1>
+              <div className="todo-input-container">
+              
               <AddTodoForm onAddTodo={addTodo} />
+              </div>
+              <div className="todo-actions">
               <button onClick={() => setIsAscending((prev) => !prev)}>
                 Sort {isAscending ? "Descending" : "Ascending"}
               </button>
@@ -150,6 +163,7 @@ function App() {
                 <option value="title">Sort by Title</option>
                 <option value="createdTime">Sort by Created Time</option>
               </select>
+              </div>
               {isLoading ? (
                 <p>Loading...</p>
               ) : (
@@ -158,10 +172,10 @@ function App() {
             </>
           }
         />
-        <Route path="/new" element={<h1>New Todo List</h1>} />
-      </Routes>
+       <Route path="/new" element={<TodoList todoList={todoList} onRemoveTodo={removeTodo} />} />
+       </Routes>
     </BrowserRouter>
   );
 }
-
+App.propTypes = {};
 export default App;
