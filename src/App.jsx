@@ -9,21 +9,17 @@ import AddTodoForm from "./components/AddTodoForm";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
-// const AIRTABLE_TABLE_NAME = import.meta.env.VITE_TABLE_NAME;
 const AIRTABLE_API_TOKEN = import.meta.env.VITE_AIRTABLE_API_TOKEN;
-// const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
-
-
 
 function App() {
-  const [tableName, setTableName] = useState(import.meta.env.VITE_TABLE_NAME);
-const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
+  const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${
+    import.meta.env.VITE_TABLE_NAME
+  }`;
 
   const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAscending, setIsAscending] = useState(true);
   const [sortBy, setSortBy] = useState("title");
-
 
   async function fetchData() {
     setIsLoading(true);
@@ -35,19 +31,20 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
         },
       });
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
+
       const data = await response.json();
-      if (!Array.isArray(data.records)) throw new Error("Invalid response format");
-  
+      if (!Array.isArray(data.records))
+        throw new Error("Invalid response format");
+
       // Ensure all records have fields and title before setting state
       const validRecords = data.records
-        .filter(record => record.fields && record.fields.title) // Filter out invalid data
-        .map(record => ({
+        .filter((record) => record.fields && record.fields.title) // Filter out invalid data
+        .map((record) => ({
           id: record.id,
-          title: record.fields.title,  // Extract title safely
+          title: record.fields.title, // Extract title safely
           createdTime: record.createdTime || new Date().toISOString(),
         }));
-  
+
       const sortedData = sortData(validRecords);
       setTodoList(sortedData);
     } catch (error) {
@@ -56,34 +53,35 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
       setIsLoading(false);
     }
   }
-  
+
   function sortData(records) {
     return records
       .map((record) => ({
         id: record.id,
-        title: record.title || "Untitled",  // Fallback for missing title
+        title: record.title || "Untitled", // Fallback for missing title
         createdTime: record.createdTime || new Date().toISOString(),
       }))
       .sort((a, b) => {
-        let valueA = sortBy === "title" ? a.title.toLowerCase() : new Date(a.createdTime);
-        let valueB = sortBy === "title" ? b.title.toLowerCase() : new Date(b.createdTime);
-  
+        let valueA =
+          sortBy === "title" ? a.title.toLowerCase() : new Date(a.createdTime);
+        let valueB =
+          sortBy === "title" ? b.title.toLowerCase() : new Date(b.createdTime);
+
         if (valueA < valueB) return isAscending ? -1 : 1;
         if (valueA > valueB) return isAscending ? 1 : -1;
         return 0;
       });
   }
-  
-  
+
   async function addTodo(newTodoTitle) {
     if (!newTodoTitle.trim()) {
       console.error("Cannot add an empty todo");
       return;
     }
-  
+
     setIsLoading(true);
     try {
-    const response=  await fetch(API_URL, {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,21 +91,21 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
           fields: { title: newTodoTitle },
         }),
       });
-  
+
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
+
       const data = await response.json();
       // await fetchData();
       if (!data.fields || !data.fields.title) {
         throw new Error("API response missing title field");
       }
-  
+
       const newTodo = {
         id: data.id,
         title: data.fields.title,
         createdTime: data.createdTime || new Date().toISOString(),
       };
-  
+
       setTodoList((prev) => sortData([...prev, newTodo]));
     } catch (error) {
       console.error("POST error:", error.message);
@@ -115,7 +113,7 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
       setIsLoading(false);
     }
   }
-  
+
   async function removeTodo(id) {
     setIsLoading(true);
     try {
@@ -126,8 +124,8 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
         },
       });
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      // setTodoList((prev) => prev.filter((todo) => todo.id !== id));
-      await fetchData();
+
+      setTodoList((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
     } catch (error) {
       console.error("DELETE error:", error.message);
     } finally {
@@ -137,7 +135,7 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
 
   useEffect(() => {
     fetchData();
-  }, [isAscending, sortBy,tableName]);
+  }, []);
 
   return (
     <BrowserRouter>
@@ -147,33 +145,45 @@ const API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableName}`;
           path="/"
           element={
             <>
-              <h1>Todo List {tableName}</h1>
+              <h1>Todo List </h1>
+
               <div className="todo-input-container">
-              
-              <AddTodoForm onAddTodo={addTodo} />
+                <AddTodoForm onAddTodo={addTodo} />
               </div>
               <div className="todo-actions">
-              <button onClick={() => setIsAscending((prev) => !prev)}>
-                Sort {isAscending ? "Descending" : "Ascending"}
-              </button>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="title">Sort by Title</option>
-                <option value="createdTime">Sort by Created Time</option>
-              </select>
+                <button onClick={() => setIsAscending((prev) => !prev)}>
+                  Sort {isAscending ? "Descending" : "Ascending"}
+                </button>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="title">Sort by Title</option>
+                  <option value="createdTime">Sort by Created Time</option>
+                </select>
               </div>
+
               {isLoading ? (
                 <p>Loading...</p>
               ) : (
-                <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
+                (() => {
+                  const sortedTodoList = sortData(todoList);
+                  return (
+                    <TodoList
+                      todoList={sortedTodoList}
+                      onRemoveTodo={removeTodo}
+                    />
+                  );
+                })()
               )}
             </>
           }
         />
-       <Route path="/new" element={<TodoList todoList={todoList} onRemoveTodo={removeTodo} />} />
-       </Routes>
+        <Route
+          path="/new"
+          element={<TodoList todoList={todoList} onRemoveTodo={removeTodo} />}
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

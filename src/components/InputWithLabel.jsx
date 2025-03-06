@@ -7,7 +7,7 @@ const InputWithLabel = ({ id, children, todoTitle, handleTitleChange }) => {
 
   useEffect(() => {
     inputRef.current.focus();
-  }, []); // Fixed: Added empty dependency array
+  }, []);
 
   return (
     <>
@@ -31,4 +31,4 @@ InputWithLabel.propTypes = {
   handleTitleChange: PropTypes.func.isRequired,
 };
 
-export default InputWithLabel; // Fixed: Exporting correctly
+export default InputWithLabel; 

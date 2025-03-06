@@ -3,11 +3,9 @@ import PropTypes from "prop-types";
 
 
 function TodoListItem({todo, onRemoveTodo}) {
-//        const{todo}= props;
         return (
         <div>
         
-        {/* <li>{todo.id}</li> */}
         <li className={style.ListItem}>{todo.title}<button type="button" onClick={() => onRemoveTodo(todo.id)} >Remove</button></li>
        
         </div>);
